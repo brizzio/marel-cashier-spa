@@ -80,7 +80,7 @@ function Login(){
     const [did] = usePersistentContext('did')
     const [ipData] = usePersistentContext('ipData')
 
-    const date = useTimeZoneDate()
+    const {millis} = useTimeZoneDate()
 
     //console.log('date', date.getTime().toString())
 
@@ -97,7 +97,7 @@ function Login(){
             credentials:loginState,
             device_id: did,
             application: 'cashier',
-            date:date.getTime().toString(),
+            date:millis.toString(),
             country_iso:ipData.countryIso,
             ip:ipData.ip,
             time_zone:ipData.timeZone

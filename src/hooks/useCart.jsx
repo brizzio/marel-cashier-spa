@@ -52,19 +52,22 @@ const useCart = () => {
 
             let arr = []
             for (let index = 0; index < q; index++) {
-                
-            let pos = index+1
+            let el = {...i}
+            let pos = index + 1
             let o = [pos,q].join("/")
             
             console.log('make item order', o)
-            i.entry_id = millis
-            i.deleted = false
-            i.date_added= date
-            i.time_added= time
-            i.order = o
-            i.quantity=1
-            console.log('make item', i)
-            arr.push(i)
+            el.entry_id = millis
+            el.uid=crypto.randomUUID()
+            el.deleted = false
+            el.date_added= date
+            el.time_added= time
+            el.index=pos
+            el.order = o
+            el.quantity= q
+            console.log('make item', el)
+            arr.push(el)
+
             }
 
             resolve(arr)
@@ -93,7 +96,8 @@ const useCart = () => {
                         ...currentCart,
                         items: newList,
                         count: newList.length,
-                        total: total(newList, 'calculated_price')
+                        total: total(newList, 'calculated_price'),
+                        weight: sumWeight(newList)
                     }
                     setCurrentCart(updatedCart)
                 })
@@ -113,6 +117,12 @@ const useCart = () => {
         let val = e.deleted?0:e[field]
         return a + val
       },0))
+
+    const sumWeight = React.useCallback((arr) => arr.reduce((a,e)=>{
+        let w = e.weight?parseFloat(e.weight.replace(",",".")):0
+        let val = e.deleted?0:w
+        return a + val
+    },0))
     
 
     //setup a listener for scan reading changes. It will react only if 
@@ -297,10 +307,7 @@ const useCart = () => {
   }
     
 
-  return (
-     
-
-    {
+  return {
         newCart,
         addFiscalCode,
         removeItemByKey,
@@ -312,7 +319,7 @@ const useCart = () => {
         currentCart
     }
    
-  )
+  
 }
 
 export default useCart

@@ -9,6 +9,7 @@ import NumericKeyboard from '../common/NumericKeyboard'
 import usePersistentContext from '../../hooks/usePersistentContext'
 import useCart from '../../hooks/useCart'
 import BouncingDotsLoader from '../../utils/BouncingDotsLoader/BouncingDotsLoader'
+import DisplayList from '../displays/DisplayList'
 
 
 function Cashier() {
@@ -16,6 +17,8 @@ function Cashier() {
   const [quantity, setQuantity] = usePersistentContext('quantity')
   const [search, setSearch] = usePersistentContext('search')
   const [readed, setReaded] = usePersistentContext('readed')  
+  const [swap=false, setSwap] = usePersistentContext('swap')
+
   const {
     newCart,
     addFiscalCode,
@@ -25,7 +28,7 @@ function Cashier() {
     deleteCart,
     formatDate,
     sumArrayByProp, 
-    currentCart
+    currentCart=[]
 } = useCart()
 
   const handleQuantityButtonClick = (clicked) =>{
@@ -48,7 +51,9 @@ function Cashier() {
 
   const handleNewCartButtonClick = () => newCart()
 
-
+  const itemsCount = currentCart.count?currentCart.count:0
+  const cartWeight = currentCart.weight?currentCart.weight.toFixed(2) + " Kg":"0.00 Kg"
+  const cartTotal = currentCart.total?currentCart.total.toFixed(2):"0.00"
   
   
   
@@ -57,7 +62,7 @@ function Cashier() {
     
 
     <div className="relative min-h-full h-screen flex items-center justify-center pt-14 pb-10 mx-2 px-2 sm:px-6 md:px-3 lg:px-8" >
-    <div className="flex flex-row h-full w-full  rounded-lg items-center justify-center gap-[1rem]" >
+    <div className={`flex flex-row h-full w-full  rounded-lg items-center justify-center gap-[1rem] ${swap?'flex-row-reverse':''}`} >
       
         <div className="flex flex-col h-full w-1/2 items-start justify-start">
 
@@ -65,25 +70,29 @@ function Cashier() {
 
                 <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-2/12  items-center justify-center">
                     <i className="fa-solid fa-2x fa-cart-arrow-down pl-2 "></i>
-                    <span className="text-5xl font-thin px-2 mb-2">7</span>
+                    <span className="text-4xl font-thin px-2 mb-2">{itemsCount}</span>
                 </div>
 
                 <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-4/12  items-center justify-center">
                     <i className="fa-solid fa-weight-scale fa-2x pl-2"></i>
-                    <span className="text-4xl font-thin p-[1rem] mb-2 leading-1 px-2">18.50</span>
+                    <span className="text-4xl font-thin p-[1rem] mb-2 leading-1 px-2 ml-2">{cartWeight}</span>
                 </div>
 
                 <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-4/12 items-center justify-start">
                 <span className="text-5xl font-bold pl-2 mb-2">€</span>
-                <span className="text-4xl font-thin pr-2 mb-2 text-end  w-full">125,50</span>
+                <span className="text-5xl font-thin pr-2 mb-2 text-end  w-full">{cartTotal}</span>
                 </div>
-                <button className=" flex items-center justify-center border  rounded-xl  border-zinc-300 text-4xl font-semibold shadow-md h-full w-1/12 px-7"
-                >0</button>
+                <button className=" flex items-center justify-center border  rounded-xl  border-zinc-300 text-4xl font-semibold shadow-md h-full w-2/12"
+                onClick={()=>setSwap(!swap)}
+                >
+                    <i className="fa-solid fa-chevron-left text-teal-600 fa-xl"></i>
+                    <i className="fa-solid fa-chevron-right text-teal-600 fa-xl"></i>
+                </button>
 
             </div>
 
-            <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-full mt-4 items-center justify-start ">
-                <span className="text-2xl font-bold p-[1rem] mb-2">list</span>
+            <div className="flex h-5/6 border rounded-xl bg-zync-300 shadow-lg w-full mt-4 items-start justify-start ">
+                <DisplayList />
             
             </div>
         </div>
@@ -100,16 +109,39 @@ function Cashier() {
 
             </div>
 
-            <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-full mt-4 items-center justify-start ">
+            <div className="flex h-full  rounded-xl   w-full mt-4 items-start justify-between gap-2 ">
 
-            <div className="flex flex-col gap-2 border border-black h-full w-3/12">
-                <div>quantity</div>
-                <div>search</div>
+            <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
+                <Button face=""
+                            //icon="search.png"  
+                            action={handleSearchButtonClick}
+                            isClicked={search?.active} />
+                <Button face=""
+                        //icon="search.png"  
+                        action={handleSearchButtonClick}
+                        isClicked={search?.active} />
+                <Button face=""
+                        //icon="search.png"  
+                        action={handleSearchButtonClick}
+                        isClicked={search?.active} />
+                <Button face=""
+                        //icon="search.png"  
+                        action={handleSearchButtonClick}
+                        isClicked={search?.active} />
+                <Button face=""
+                        //icon="search.png"  
+                        action={handleSearchButtonClick}
+                        isClicked={search?.active} />
             </div>
 
+            <div className="flex flex-col items-center justify-start gap-3  h-full w-6/12">
             <NumericKeyboard />
+            <ButtonCloseCart face="CHIUDI"
+                    action={()=>console.log('close cart')}
+                    isClicked={false} />
+            </div>
 
-            <div className="flex flex-col items-end justify-start gap-2 border border-black h-full w-2/12">
+            <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
                 <ButtonDisableOnClick face="nuovo"
                         icon="new.png" 
                         action={handleNewCartButtonClick}
@@ -121,6 +153,14 @@ function Cashier() {
                         isClicked={quantity?.type == 'manual' && !!quantity?.edit} />
                 <Button face="cerca"
                         icon="search.png"  
+                        action={handleSearchButtonClick}
+                        isClicked={search?.active} />
+                <Button face=""
+                        //icon="search.png"  
+                        action={handleSearchButtonClick}
+                        isClicked={search?.active} />
+                <Button face=""
+                        //icon="search.png"  
                         action={handleSearchButtonClick}
                         isClicked={search?.active} />
             </div>
@@ -169,7 +209,7 @@ const Button = ({
     }
 
     return (
-        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full
+        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full h-[5.3rem]
         ${clicked
         ?'bg-teal-500 text-white'
         :''}
@@ -211,7 +251,7 @@ const ButtonDisableOnClick = ({
     }
 
     return (
-        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full
+        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full h-[5.6rem]
         ${clicked
         ?'bg-teal-600 text-white'
         :''}
@@ -228,4 +268,50 @@ const ButtonDisableOnClick = ({
         </button>
     )
 
+    
+
+}
+
+const ButtonCloseCart = ({
+    face,
+    bg='white',
+    action,
+    isClicked,
+    release
+}) =>{
+
+    const [clicked, setClicked] = React.useState(false)
+    const [disabled, setDisabled] = React.useState(false)
+
+    React.useEffect(()=>setClicked(isClicked),[isClicked])
+
+    React.useEffect(()=>{
+        !isClicked && release
+        ?setDisabled(release)
+        :''
+    },[release])
+
+    const click = () =>{
+        console.log('clicked', face)
+        setClicked(true)
+        setDisabled(true)
+        action()
+    }
+
+    return (
+        <button className={`flex items-center justify-center   rounded-xl shadow-md  h-[5rem] w-11/12 bg-indigo-600 text-white mr-2 
+        ${clicked
+        ?'bg-indigo-700 text-white'
+        :''}
+        `}
+        disabled={disabled}
+        onClick={click}>
+            {clicked
+                ?<div className="flex w-full items-center justify-center">
+                    <BouncingDotsLoader/>
+                </div>
+                :<i className="fa-solid fa-3x fa-hand-holding-dollar"></i>
+            }
+        </button>
+    )
 }

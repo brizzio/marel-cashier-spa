@@ -1,4 +1,6 @@
-import React, { forwardRef }  from 'react'
+/* eslint-disable react/display-name */
+/* eslint-disable react/prop-types */
+import { forwardRef }  from 'react'
 
 const classes = {
     base: 'focus:outline-none transition ease-in-out duration-300',
@@ -6,7 +8,7 @@ const classes = {
     pill: 'rounded-full',
     size: {
         small: 'px-2 py-2 text-xs',
-        normal: 'px-4 py-2',
+        normal: 'px-4 py-2 text-xl',
         large: 'px-8 py-3 text-lg'
     },
     variant: {
@@ -35,7 +37,8 @@ const Button = forwardRef(
             size = 'normal',
             pill,
             disabled = false,
-            onClick,
+            //onClick,
+            faIcon,
             ...props
         }, ref
     ) => (
@@ -43,7 +46,7 @@ const Button = forwardRef(
             ref={ref}
             disabled={disabled}
             type={type}
-            onClick = {onClick}
+            //onClick = {onClick}
             className={cls(`
                 ${classes.base}
                 ${classes.size[size]}
@@ -54,6 +57,9 @@ const Button = forwardRef(
             `)}
             {...props}
         >
+            {faIcon
+            ?<i className={faIcon}></i>
+            :''}
             {children}
         </button>
     ));

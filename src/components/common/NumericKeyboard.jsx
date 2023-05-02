@@ -123,7 +123,7 @@ const Button = ({
     }
     
     return (
-        <button className=" flex items-center justify-center border  rounded-md  border-zinc-300 text-3xl font-semibold shadow-md"
+        <button className=" flex items-center justify-center border  rounded-md  border-zinc-300 text-5xl text-teal-700 font-semibold shadow-md"
         onClick={()=>action(face)}>{face}</button>
     )
 
@@ -147,7 +147,7 @@ const ButtonDelete = ({
 
     return (
         <button className=" flex items-center justify-center border  rounded-md  border-zinc-300 text-3xl font-semibold shadow-md
-        disabled:text-zinc-200"
+        disabled:text-zinc-400"
         disabled={!isEnabled}
         onClick={action}>DEL</button>
     )
@@ -168,7 +168,7 @@ const ButtonEnter = ({
 
     return (
         <button className=" flex items-center justify-center border  rounded-md  border-zinc-300 text-3xl font-semibold shadow-md
-        disabled:text-zinc-200"
+        disabled:text-zinc-400"
         disabled={!isEnabled}
         onClick={action}>
             <i className="fa-solid fa-lg fa-arrow-right-to-bracket"></i>

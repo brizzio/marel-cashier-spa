@@ -4,7 +4,7 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import useCart from '../../hooks/useCart';
-import usePersistentContext from '../../hooks/usePersistentContext';
+//import usePersistentContext from '../../hooks/usePersistentContext';
 
 
 
@@ -61,17 +61,17 @@ RenderListItem.propTypes = {
 
 const DisplayList = () => {
 
-    
-   
-    const [currentCart, setCurrentCart] = usePersistentContext('currentCart')
+  
 
-    const cart = useCart()
+    const {currentCart} = useCart()
+
+//console.log('DisplayList current cart', currentCart)
 
     const [list, setList]= React.useState([])
     
     React.useEffect(()=>{
 
-        console.log('display list use effect', currentCart?.items)
+        //console.log('display list use effect', currentCart?.items)
         setList(currentCart?.items)
     
     },[currentCart])
@@ -95,10 +95,10 @@ const DisplayList = () => {
                 </div>  
             </div>  */}
             {
-                currentCart?.items.lenght?
+                currentCart && currentCart.items.lenght?
                 <div>In attesa dello scanner...</div>:
                 <div id="table-body" className='flex flex-col h-{8rem} overflow-y-scroll [&::-webkit-scrollbar]:hidden px-2'>
-                {currentCart?.items.map(function(i, idx){
+                {currentCart && currentCart.items.map(function(i, idx){
                     return (<RenderListItem key={idx} item={i} />)
                 })}
                 </div>

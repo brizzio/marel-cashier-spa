@@ -10,6 +10,9 @@ import usePersistentContext from '../../hooks/usePersistentContext'
 import useCart from '../../hooks/useCart'
 import BouncingDotsLoader from '../../utils/BouncingDotsLoader/BouncingDotsLoader'
 import DisplayList from '../displays/DisplayList'
+import PayCash from './PayCash'
+import PayBancomat from './PayBancomat'
+import Bags from '../common/Bags'
 
 
 function Cashier() {
@@ -18,6 +21,8 @@ function Cashier() {
   const [search, setSearch] = usePersistentContext('search')
   const [readed, setReaded] = usePersistentContext('readed')  
   const [swap=false, setSwap] = usePersistentContext('swap')
+
+  const [view = 0, setView] = usePersistentContext('view')
 
   const {
     newCart,
@@ -28,8 +33,38 @@ function Cashier() {
     deleteCart,
     formatDate,
     sumArrayByProp, 
-    currentCart=[]
+    setPaymentMode,
+    resetPaymentMode,
+    isPaymentModeOn,
+    currentCart
 } = useCart()
+
+  const handleChangeView = (v)=>{
+
+    console.log('handleChangeView', v)
+
+    switch (v) {
+        case 1:
+            setPaymentMode('cash')
+            break;
+        case 2:
+            setPaymentMode('bancomat')
+            break;
+        case 3:
+            setPaymentMode('bonus')
+            break;
+        case 4:
+            setPaymentMode('other')
+            break;
+    
+        default:
+            resetPaymentMode()
+            break;
+    }
+    setView(v)
+  }
+
+ 
 
   const handleQuantityButtonClick = (clicked) =>{
     console.log('handle clicked', clicked)
@@ -51,11 +86,11 @@ function Cashier() {
 
   const handleNewCartButtonClick = () => newCart()
 
-  const itemsCount = currentCart.count?currentCart.count:0
-  const cartWeight = currentCart.weight?currentCart.weight.toFixed(2) + " Kg":"0.00 Kg"
-  const cartTotal = currentCart.total?currentCart.total.toFixed(2):"0.00"
+  const itemsCount = currentCart?currentCart.count:0
+  const cartWeight = currentCart?currentCart.weight?.toFixed(2) + " Kg":"0.00 Kg"
+  const cartTotal = currentCart?currentCart.total?.toFixed(2):"0.00"
   
-  
+  console.log('isPaymentModeOn view', isPaymentModeOn , view)
   
   return (
 
@@ -92,7 +127,9 @@ function Cashier() {
             </div>
 
             <div className="flex h-5/6 border rounded-xl bg-zync-300 shadow-lg w-full mt-4 items-start justify-start ">
-                <DisplayList />
+                {!isPaymentModeOn && <DisplayList />}
+                {isPaymentModeOn && view == 1 && <PayCash value={currentCart.total} />}
+                {isPaymentModeOn && view == 2 && <PayBancomat value={currentCart.total} />}
             
             </div>
         </div>
@@ -111,59 +148,63 @@ function Cashier() {
 
             <div className="flex h-full  rounded-xl   w-full mt-4 items-start justify-between gap-2 ">
 
-            <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
+                <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
+                    
+                    <SideButton face=""
+                                view={1} /* set payment_type as cash */
+                                faIcon='fa-solid fa-hand-holding-dollar fa-2x text-zinc-400'  
+                                action={handleChangeView}
+                                isClicked={isPaymentModeOn && view == 1} />
+                    <SideButton face=""
+                            view={2}  /* set payment_type as bancomat */
+                            faIcon='fa-solid fa-credit-card fa-2x text-zinc-400'  
+                            action={handleChangeView}
+                            isClicked={isPaymentModeOn && view == 2} />
+                    <SideButton face=""
+                            view={3}/* set payment_type as bonus */
+                            faIcon='fa-solid fa-gifts fa-2x text-zinc-400'  
+                            action={handleChangeView}
+                            isClicked={isPaymentModeOn && view == 3} />
+                    <SideButton face=""
+                            view={4}/* set payment_type as other */
+                            faIcon='fa-solid fa-money-check-dollar fa-2x text-zinc-400'  
+                            action={handleChangeView}
+                            isClicked={isPaymentModeOn && view == 4} />
+                    <SideButton face=""
+                            //icon="search.png"  
+                            action={handleSearchButtonClick}
+                            isClicked={search?.active} />
+                </div>
+
+                <div className="flex flex-col items-center justify-start gap-3  h-full w-6/12">
+                <NumericKeyboard />
                 <Button face=""
                             //icon="search.png"  
                             action={handleSearchButtonClick}
                             isClicked={search?.active} />
-                <Button face=""
-                        //icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-                <Button face=""
-                        //icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-                <Button face=""
-                        //icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-                <Button face=""
-                        //icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-            </div>
+                </div>
 
-            <div className="flex flex-col items-center justify-start gap-3  h-full w-6/12">
-            <NumericKeyboard />
-            <ButtonCloseCart face="CHIUDI"
-                    action={()=>console.log('close cart')}
-                    isClicked={false} />
-            </div>
-
-            <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
-                <ButtonDisableOnClick face="nuovo"
-                        icon="new.png" 
-                        action={handleNewCartButtonClick}
-                        isClicked={currentCart?.active}
-                        release={currentCart?.active} />
-                <Button face="quantitá"
-                        icon="quantity.png" 
-                        action={handleQuantityButtonClick}
-                        isClicked={quantity?.type == 'manual' && !!quantity?.edit} />
-                <Button face="cerca"
-                        icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-                <Button face=""
-                        //icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-                <Button face=""
-                        //icon="search.png"  
-                        action={handleSearchButtonClick}
-                        isClicked={search?.active} />
-            </div>
+                <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
+                    <ButtonDisableOnClick face="nuovo"
+                            icon="new.png" 
+                            action={handleNewCartButtonClick}
+                            isClicked={currentCart?.active}
+                            release={currentCart?.active} />
+                    <Button face="quantitá"
+                            //icon="quantity.png"
+                            faIcon="fa-solid fa-cubes-stacked fa-2xl text-zinc-400"
+                            action={handleQuantityButtonClick}
+                            isClicked={quantity?.type == 'manual' && !!quantity?.edit} />
+                    <Button face="cerca"
+                            //icon="search.png"
+                            faIcon="fa-solid fa-magnifying-glass fa-2xl text-zinc-400"  
+                            action={handleSearchButtonClick}
+                            isClicked={search?.active} />
+                    <div className={`flex items-center justify-center   text-2xl font-thin  p-4 w-full h-[11.5rem]`}>
+                        <Bags />
+                    </div>
+                   
+                </div>
             
             </div>
         </div>
@@ -192,6 +233,7 @@ export default Cashier
 const Button = ({
     face,
     icon,
+    faIcon,
     bg='white',
     action,
     isClicked
@@ -217,6 +259,48 @@ const Button = ({
         onClick={click}>
             {icon
             ?<img className="h-[3rem]" src={'/' + icon}/>
+            :faIcon
+            ?<i className={faIcon}></i>
+            :face.toUpperCase()}
+        </button>
+    )
+
+}
+
+
+// eslint-disable-next-line react/prop-types
+const SideButton = ({
+    face,
+    icon,
+    faIcon,
+    view,
+    bg='white',
+    action,
+    isClicked
+}) =>{
+
+    const [clicked, setClicked] = React.useState(isClicked)
+
+    React.useEffect(()=>setClicked(isClicked),[isClicked])
+
+    const click = () =>{
+        console.log('clicked', face)
+        let state = !clicked
+        setClicked(state)
+        action(view)
+    }
+
+    return (
+        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full h-[5.3rem]
+        ${clicked
+        ?'bg-teal-500 text-white'
+        :''}
+        `}
+        onClick={click}>
+            {icon
+            ?<img className="h-[3rem]" src={'/' + icon}/>
+            :faIcon
+            ?<i className={`${faIcon}${clicked?'text-white':''}`}></i>
             :face.toUpperCase()}
         </button>
     )
@@ -299,7 +383,7 @@ const ButtonCloseCart = ({
     }
 
     return (
-        <button className={`flex items-center justify-center   rounded-xl shadow-md  h-[5rem] w-11/12 bg-indigo-600 text-white mr-2 
+        <button className={`flex items-center justify-center   rounded-xl shadow-md  h-[5rem] w-full bg-indigo-600 text-white 
         ${clicked
         ?'bg-indigo-700 text-white'
         :''}

@@ -68,7 +68,7 @@ React.useEffect(()=>{
 
   if(readed?.processed && currentCart?.active) return (
     <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-9/12 items-center justify-start px-2">
-        <span className={`flex items-center justify-center text-7xl font-thin mx-2 w-fit h-5/6 text-zinc-400`}>{readed?.quantity.value}</span>
+        <span className={`flex items-center justify-center text-7xl font-thin mx-2 w-fit h-5/6 text-teal-700`}>{readed?.quantity.value}</span>
         <span className="text-5xl font-thin pl-2 mb-2 text-green-500">|</span>
         <span className="text-6xl font-thin pl-2 text-zinc-700">{readed?.code}</span>
     </div>
@@ -79,7 +79,7 @@ React.useEffect(()=>{
 
     currentCart?.active && readed?.found
     ?<div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-9/12 items-center justify-start px-2">
-        <span className={`flex items-center justify-center text-5xl font-semibold mx-2 w-fit h-5/6 text-zinc-400 ${activeClass}`}>{showQuantity}</span>
+        <span className={`flex items-center justify-center text-5xl font-semibold mx-2 w-fit h-5/6 text-teal-700 ${activeClass}`}>{showQuantity}</span>
         <span className="text-5xl font-thin pl-2 mb-2 text-green-500">|</span>
         <span className={`flex items-center h-5/6 text-5xl font-thin ml-3 text-start  w-full ${activeSearchClass}`}>{code}</span>
     </div>

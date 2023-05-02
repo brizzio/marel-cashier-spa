@@ -4,6 +4,7 @@ import React from 'react'
 import usePersistentContext from './usePersistentContext'
 import useTimeZoneDate from './useTimeZoneDate'
 import useLogger from './useLogger'
+import { fetchQuery } from '../api/api'
 
 
 
@@ -12,12 +13,29 @@ import useLogger from './useLogger'
 //https://codesandbox.io/s/react-input-autocomplete-knwn3?file=/src/InputAuto.js
 
 
+const currentCartModel = {
+    active:false,
+    cart_id:'',
+    date:'',
+    created_at:'',
+    closed_at:'',
+    count:0,
+    total:0,
+    weight:0,
+    fiscal_code:'',
+    costumer:{},
+    bags:0,
+    items:[]
+}
+
+
+
 const useCart = () => {
     //const [code, setCode] = useState('')
     //            const [found, setFound] = useState({})
     
-    const [currentCart , setCurrentCart] = usePersistentContext('currentCart')
-    const [cashier] = usePersistentContext('cashier')
+    const [currentCart, setCurrentCart] = usePersistentContext('currentCart')
+    const [cashier, setCashier] = usePersistentContext('cashier')
     const [quantity, setQuantity] = usePersistentContext('quantity')
     const [readed, setReaded] = usePersistentContext('readed')
     const [readings, setReadings] = useLogger('readings')
@@ -25,8 +43,8 @@ const useCart = () => {
     const {
         millis,
         dateTime,
-        formattedDate:date,
-        formattedTime:time,
+        date:formattedDate,
+        time:formattedTime,
         array,
         timestamp,
         numeric   
@@ -34,18 +52,10 @@ const useCart = () => {
 
     
      
-      const currentCartModel = {
-        cart_id:'',
-        date:'',
-        created_at:'',
-        closed_at:'',
-        count:0,
-        total:0,
-        fiscal_code:'',
-        costumer:{},
-        items:[]
-    }
-    
+    React.useEffect(()=>{
+        if (!currentCart) setCurrentCart(currentCartModel)
+    })
+     
 
     function makeItem(i, q){
         return new Promise((resolve)=>{
@@ -60,8 +70,8 @@ const useCart = () => {
             el.entry_id = millis
             el.uid=crypto.randomUUID()
             el.deleted = false
-            el.date_added= date
-            el.time_added= time
+            el.date_added= formattedDate
+            el.time_added= formattedTime
             el.index=pos
             el.order = o
             el.quantity= q
@@ -156,7 +166,7 @@ const useCart = () => {
         
     },[readed])
 
-
+    
    
     
       const newCart = () =>{
@@ -165,11 +175,12 @@ const useCart = () => {
             cart_id:millis.toString(),
             timestamp,
             active:true,
-            date:date,
-            created_at:time,
+            date:formattedDate,
+            created_at:formattedTime,
             closed_at:'',
             costumer:{},
             items:[],
+            bags:0,
             total:0,
             count:0
         })
@@ -254,10 +265,10 @@ const useCart = () => {
                 
                 console.log('addToCart', item, index)
 
-                item.entry_id = new Date(date).toISOString().replace(/\D/g, '')
+                item.entry_id = new Date(millis).toISOString().replace(/\D/g, '')
                 item.deleted = false
-                item.date_added= formatDate(date)
-                item.time_added= new Date(date).getTime()
+                item.date_added= formatDate(millis)
+                item.time_added= new Date(millis).getTime()
                 item.order= index +'/' + quant
                 item.quantity=1
                 //console.log('mountItem', item)
@@ -293,7 +304,7 @@ const useCart = () => {
     return num.toString().padStart(2, '0');
   }
   
-  function formatDate() {
+  function formatDate(date) {
     return [
       date.getFullYear(),
       padTo2Digits(date.getMonth() + 1),
@@ -305,6 +316,144 @@ const useCart = () => {
   const sumArrayByProp = (arr, prop) =>{
     return arr.reduce((a,item)=> a + item[prop],0)
   }
+
+  const updateBagsCount =(value)=>{
+    if (currentCart && currentCart.active) setCurrentCart({...currentCart, bags:value})
+  }
+
+  const closeCart = async() => {
+
+    console.log('closing cart')
+
+    let c = {...currentCart}
+    c.closed_at= millis
+    c.count= c.items.length
+    c.purchase_items_count= c.items.filter(e=>!e.deleted).length
+    c.total=total(c.items,'calculated_price')
+
+    const cartPayload = await postCartPayload(c)
+
+    const requestBody ={
+      table:'cashier',
+      payload:cartPayload
+    }
+    await fetchQuery(requestBody).then((res)=>console.log('database sync', res))
+
+    //update cashier session object
+    const carts = cashier.carts?cashier.carts:[]
+
+    const updatedCashier = {
+        ...cashier,
+        carts:[...carts, currentCart]
+    }
+    setCashier(updatedCashier)
+
+    //clean last current cart object in memory state
+    setCurrentCart(currentCartModel)
+
+
+  }
+
+
+  async function postCartPayload(c){
+
+    try {
+
+        let sessionInfo = {
+            session_id:cashier.session.id,
+            session_device_id: cashier.session.device_id,
+            session_country_iso:cashier.session.country_iso,
+            session_time_zone: cashier.session.time_zone,
+            session_timestamp:cashier.session.timestamp,
+          }
+
+          let userInfo = {
+            user_id:cashier.user.id,
+          }
+
+          let companyInfo = {
+            company_id:cashier.user.company_id,
+            company_name:cashier.user.company_name,
+            company_store:1234,
+          }
+        
+          let cartInfo = {
+            cart_id:c.cart_id,
+            cart_date: c.date,
+            cart_created_at:c.created_at,
+            cart_closed_at:formattedTime,
+            cart_costumer:c.costumer?c.costumer.fiscal_code:'',
+            cart_origin:'cashier',
+            cart_total:c.total,
+            cart_due:c.due?c.due:c.total,
+            cart_change:c.change?c.change:0,
+            cart_weight:c.weight,
+            cart_bags:c.bags,
+            cart_items_count:c.items.lenght
+          }
+        
+          let arr =[]
+      
+          for (let item in c.items){
+            
+            arr.push({
+              ...sessionInfo,
+              ...cartInfo,
+              ...userInfo,
+              ...companyInfo,
+              ...c.items[item]
+            })
+          }
+        
+          return arr
+        
+    } catch (error) {
+        console.log('an error occurred when mounting cart payload')
+    }
+
+    
+  
+  
+  }
+
+  const updatePayment = (money, change) =>{
+
+    const updatedCart = {
+        ...currentCart,
+        due: money,
+        change: change,
+    }
+
+    setCurrentCart(updatedCart)
+
+  }
+
+  const setPaymentMode = (mode) =>{
+
+    const updatedCart = {
+        ...currentCart,
+        payment_mode: mode
+    }
+
+    setCurrentCart(updatedCart)
+
+  }
+
+  const resetPaymentMode = () =>{
+
+    const updatedCart = {
+        ...currentCart
+    }
+
+    delete updatedCart.payment_mode
+
+    setCurrentCart(updatedCart)
+
+  }
+
+  const isPaymentModeOn =currentCart.payment_mode?true:false
+
+
     
 
   return {
@@ -316,6 +465,12 @@ const useCart = () => {
         deleteCart,
         formatDate,
         sumArrayByProp, 
+        updateBagsCount,
+        closeCart,
+        setPaymentMode,
+        resetPaymentMode,
+        updatePayment,
+        isPaymentModeOn,
         currentCart
     }
    

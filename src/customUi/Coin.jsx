@@ -1,4 +1,5 @@
-import React, { useState, useEffect }from 'react'
+/* eslint-disable react/prop-types */
+import { useState, useEffect }from 'react'
 
 
 function Coin(props) {
@@ -51,25 +52,24 @@ function Coin(props) {
     
     <div className="flex flex-col w-24 justify-center items-center">
   
-    
-    
-    <div className="w-12 h-12 flex justify-center items-center border-2 border-black rounded-full">
+        
+    <div className= {`w-12 h-12 flex justify-center items-center  ${count > 0?'border border-4 border-teal-700':'border-2 border-black'} rounded-full`}>
       <p className="text-xl font-bold">{props.face}</p>
     </div>
   
 
   <div className={`flex flex-row items-center justify-between	border border-gray-300 rounded-full w-full  py-1 mt-2`}>
               
-            <button className='w-6 items-center ml-2' onClick={decrement}>
+            <button className='w-6 items-center ml-2 text-zinc-400' onClick={decrement}>
             <i className="fa-solid fa-minus"></i>
             </button>
 
               <div className={`flex flex-row items-center gap-2`}>
-                 <span className={`text-2xl font-thin`}>{count}</span>
+                 <span className={`text-2xl ${count>0?'font-bold':'font-thin'}`}>{count}</span>
               </div>
             
              <button className='w-6 items-center mr-2' onClick={increment}>
-              <i className="fa-solid fa-plus"></i>
+              <i className="fa-solid fa-plus text-zinc-400"></i>
              </button>
               
   </div> 

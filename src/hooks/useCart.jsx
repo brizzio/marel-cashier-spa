@@ -22,6 +22,7 @@ const currentCartModel = {
     count:0,
     total:0,
     weight:0,
+    payment_mode:'',
     fiscal_code:'',
     costumer:{},
     bags:0,
@@ -34,7 +35,7 @@ const useCart = () => {
     //const [code, setCode] = useState('')
     //            const [found, setFound] = useState({})
     
-    const [currentCart, setCurrentCart] = usePersistentContext('currentCart')
+    const [currentCart={...currentCartModel}, setCurrentCart] = usePersistentContext('currentCart')
     const [cashier, setCashier] = usePersistentContext('cashier')
     const [quantity, setQuantity] = usePersistentContext('quantity')
     const [readed, setReaded] = usePersistentContext('readed')
@@ -43,8 +44,8 @@ const useCart = () => {
     const {
         millis,
         dateTime,
-        date:formattedDate,
-        time:formattedTime,
+        formattedDate,
+        formattedTime,
         array,
         timestamp,
         numeric   
@@ -58,6 +59,9 @@ const useCart = () => {
      
 
     function makeItem(i, q){
+
+        console.log('date', formattedDate, formattedTime)
+
         return new Promise((resolve)=>{
 
             let arr = []
@@ -170,8 +174,9 @@ const useCart = () => {
    
     
       const newCart = () =>{
-        console.log('create new cart')
+        console.log('create new cart', formattedDate, formattedTime)
         setCurrentCart({
+            ...currentCartModel,
             cart_id:millis.toString(),
             timestamp,
             active:true,
@@ -226,7 +231,7 @@ const useCart = () => {
     const deleteCart = () =>{
 
     console.log('remove currentCart ')
-    localStorage.removeItem('currentCart')
+    setCurrentCart({...currentCartModel})
 
     
 
@@ -267,8 +272,8 @@ const useCart = () => {
 
                 item.entry_id = new Date(millis).toISOString().replace(/\D/g, '')
                 item.deleted = false
-                item.date_added= formatDate(millis)
-                item.time_added= new Date(millis).getTime()
+                item.date_added= formattedDate
+                item.time_added= formattedTime
                 item.order= index +'/' + quant
                 item.quantity=1
                 //console.log('mountItem', item)
@@ -326,7 +331,7 @@ const useCart = () => {
     console.log('closing cart')
 
     let c = {...currentCart}
-    c.closed_at= millis
+    c.closed_at= formattedTime
     c.count= c.items.length
     c.purchase_items_count= c.items.filter(e=>!e.deleted).length
     c.total=total(c.items,'calculated_price')
@@ -423,6 +428,7 @@ const useCart = () => {
         due: money,
         change: change,
     }
+    
 
     setCurrentCart(updatedCart)
 
@@ -451,7 +457,7 @@ const useCart = () => {
 
   }
 
-  const isPaymentModeOn =currentCart.payment_mode?true:false
+  const isPaymentModeOn= currentCart && currentCart.payment_mode?true:false
 
 
     

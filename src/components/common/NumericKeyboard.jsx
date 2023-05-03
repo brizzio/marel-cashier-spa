@@ -91,7 +91,7 @@ const NumericKeyboard = () => {
 
 //border border-sky-600 rounded-md
   return (
-    <div className="container grid grid-cols-3 grid-rows-4 gap-3  h-[24rem] w-full mt-2">
+    <div className="container grid grid-cols-3 grid-rows-4 gap-3  h-[23.5rem] w-full mt-2">
         <Button face={1} action={handleNumberClick}/>
         <Button face={2} action={handleNumberClick}/>
         <Button face={3} action={handleNumberClick}/>

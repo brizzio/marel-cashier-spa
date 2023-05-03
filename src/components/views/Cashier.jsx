@@ -13,6 +13,8 @@ import DisplayList from '../displays/DisplayList'
 import PayCash from './PayCash'
 import PayBancomat from './PayBancomat'
 import Bags from '../common/Bags'
+import ProductSelector from './productSelector'
+
 
 
 function Cashier() {
@@ -56,6 +58,10 @@ function Cashier() {
         case 4:
             setPaymentMode('other')
             break;
+
+        case 5:
+            productSelection()
+            break
     
         default:
             resetPaymentMode()
@@ -65,6 +71,15 @@ function Cashier() {
   }
 
  
+
+
+  const productSelection = () =>{
+
+        console.log('product selecion')
+
+  }
+
+  const handleResetView = ()=>handleChangeView(0)
 
   const handleQuantityButtonClick = (clicked) =>{
     console.log('handle clicked', clicked)
@@ -130,6 +145,7 @@ function Cashier() {
                 {!isPaymentModeOn && <DisplayList />}
                 {isPaymentModeOn && view == 1 && <PayCash value={currentCart.total} />}
                 {isPaymentModeOn && view == 2 && <PayBancomat value={currentCart.total} />}
+                {view==5 && <ProductSelector close={handleResetView}/>}
             
             </div>
         </div>
@@ -140,6 +156,7 @@ function Cashier() {
 
                 <div className="flex flex-col w-3/12 items-center justify-center -ml-4">
                 <Webc id="webimage" />
+                
                 </div>
 
                 <UpcScreen />
@@ -170,18 +187,22 @@ function Cashier() {
                             faIcon='fa-solid fa-money-check-dollar fa-2x text-zinc-400'  
                             action={handleChangeView}
                             isClicked={isPaymentModeOn && view == 4} />
-                    <SideButton face=""
-                            //icon="search.png"  
-                            action={handleSearchButtonClick}
-                            isClicked={search?.active} />
+                    <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full h-[5.3rem]`}
+                    onClick={()=>deleteCart()}>
+                    <i className="fa-regular fa-rectangle-xmark fa-2x text-red-400"></i>
+                    </button>
                 </div>
 
                 <div className="flex flex-col items-center justify-start gap-3  h-full w-6/12">
                 <NumericKeyboard />
-                <Button face=""
-                            //icon="search.png"  
-                            action={handleSearchButtonClick}
-                            isClicked={search?.active} />
+                <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 shadow-md  w-full h-[5.3rem] gap-2 ${view==5?'bg-teal-600  rounded-xl':''}`}
+                disabled ={!currentCart?.active}
+                onClick={()=>handleChangeView(5)}
+                >
+                   <i className="fa-solid fa-cheese fa-2x text-zinc-600 "></i>
+                   <i className="fa-solid fa-bottle-water fa-3x text-zinc-600"></i>
+                   <i className="fa-solid fa-ice-cream fa-2x text-zinc-600"></i>
+                </button>
                 </div>
 
                 <div className="flex flex-col items-end justify-start gap-3 h-full w-3/12 mt-2 mr-2">
@@ -321,11 +342,7 @@ const ButtonDisableOnClick = ({
     const [disabled, setDisabled] = React.useState(false)
 
     React.useEffect(()=>setClicked(isClicked),[isClicked])
-    React.useEffect(()=>{
-        !isClicked && release
-        ?setDisabled(release)
-        :''
-    },[release])
+    
 
     const click = () =>{
         console.log('clicked', face)
@@ -335,12 +352,12 @@ const ButtonDisableOnClick = ({
     }
 
     return (
-        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full h-[5.6rem]
+        <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 text-2xl font-thin shadow-md p-4 w-full h-[5.3rem]
         ${clicked
         ?'bg-teal-600 text-white'
         :''}
         `}
-        disabled={disabled}
+        disabled={clicked}
         onClick={click}>
             {icon
             ?clicked

@@ -22,7 +22,7 @@ const Bags = () => {
     async function increment () {
         //setCount(prevCount => prevCount+=1);
         if(currentCart.active) {
-           await updateBags('add')
+           updateBags('add')
         }
         
       }
@@ -30,7 +30,7 @@ const Bags = () => {
     async function decrement() {
 
         if(currentCart.active){
-          await updateBags('remove')
+          updateBags('remove')
         }        
     }
 

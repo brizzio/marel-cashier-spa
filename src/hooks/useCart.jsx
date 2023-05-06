@@ -87,14 +87,12 @@ const useCart = () => {
     }
 
 
-    const addReadedItem = async (item) =>{
+    const addReadedItem = (item) =>{
 
-        try {
+        
           let quant = quantity?.value?quantity?.value:1
             console.log('quant', quant)
             
-                
-              
                 makeItem(item, quant)
                 .then((res)=>{
                    console.log('res',res, Array.isArray(res)?res.length:1)
@@ -114,17 +112,7 @@ const useCart = () => {
                     console.log('updatedCart',updatedCart)
                     setCurrentCart(updatedCart)
                 })
-                
-        } catch (error) {
-          console.log('Occured an error while adding item to cart')
-        }
-            
-
-                //console.log('mountItem', item)
-                //item.cart_id=cart.id
-                //item.device_id=cart.device_id
-                //item.store_id=cart.store_id
-                
+           
     }
 
 
@@ -174,13 +162,13 @@ const useCart = () => {
     },[readed])
 
 
-    const addItemToCartByReference = async (item)=>{
+    const addItemToCartByReference = React.useCallback((item)=>{
 
       console.log('adding item', item)
-      await addReadedItem(item)
+      addReadedItem(item)
 
 
-    }
+    })
     
    
     
@@ -340,7 +328,9 @@ const useCart = () => {
     
   },[cashier.prices])
 
-  const updateBags =async (action)=>{
+
+
+  const updateBags =(action)=>{
 
     const bag = prices.filter(el=>el.product_id==145)[0]
     //console.log('bag', bag)
@@ -348,8 +338,28 @@ const useCart = () => {
       const count = currentCart.bags
       if(action=='add'){
       console.log('add bag', bag)
-      setCurrentCart({...currentCart, bags:count+1})
-      await addItemToCartByReference(bag)
+        
+      console.log('added bag object', {...currentCart, bags:count+1})
+
+      makeItem(bag, 1)
+      .then((res)=>{
+         console.log('res bag item created',res, Array.isArray(res)?res.length:1)
+         return  [...currentCart.items, res[0]]
+      })
+      .then((newList)=>{
+          console.log('list with new bag',newList)
+          const updatedCart = {
+              ...currentCart,
+              bags:currentCart.bags + 1,
+              items: newList,
+              count: newList.length,
+              total: total(newList, 'calculated_price'),
+              weight: sumWeight(newList)
+          }
+          console.log('updated bags in Cart',updatedCart)
+          setCurrentCart(updatedCart)
+      })
+
       }
 
       if(action=='remove'){

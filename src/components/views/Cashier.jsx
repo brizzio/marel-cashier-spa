@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react'
@@ -6,6 +7,7 @@ import BizerbaLogoSVG from '../common/BizerbaLogoSVG'
 import Webc from '../../utils/Webc'
 import UpcScreen from '../displays/UpcScreen'
 import NumericKeyboard from '../common/NumericKeyboard'
+import NumKb from '../common/NumKb'
 import usePersistentContext from '../../hooks/usePersistentContext'
 import useCart from '../../hooks/useCart'
 import BouncingDotsLoader from '../../utils/BouncingDotsLoader/BouncingDotsLoader'
@@ -40,6 +42,8 @@ function Cashier() {
     isPaymentModeOn,
     currentCart
 } = useCart()
+
+  
 
   const handleChangeView = (v)=>{
 
@@ -111,12 +115,12 @@ function Cashier() {
 
     
 
-    <div className="relative min-h-full h-screen flex items-center justify-center pt-14 pb-10 mx-2 px-2 sm:px-6 md:px-3 lg:px-8" >
+    <div className="relative h-screen w-screen flex items-center justify-center pt-14 pb-10 mx-2 px-2 sm:px-6 md:px-3 lg:px-8" >
     <div className={`flex flex-row h-full w-full  rounded-lg items-center justify-center gap-[1rem] ${swap?'flex-row-reverse':''}`} >
       
         <div className="flex flex-col h-full w-1/2 items-start justify-start">
 
-            <div className="flex h-[6rem] w-full items-center justify-start gap-3 ">
+            <div className="flex h-[8rem] w-full items-center justify-start gap-3 ">
 
                 <div className="flex h-full border rounded-xl bg-zync-300 shadow-lg w-2/12  items-center justify-center">
                     <i className="fa-solid fa-2x fa-cart-arrow-down pl-2 "></i>
@@ -140,15 +144,21 @@ function Cashier() {
                 </button>
 
             </div>
-
-            <div className="flex h-5/6 border rounded-xl bg-zync-300 shadow-lg w-full mt-4 items-start justify-start ">
+            {!isPaymentModeOn && view==5 
+            ? <ProductSelector close={handleResetView}/>
+            :<div className="flex h-5/6  rounded-xl bg-zync-300 shadow-lg w-full mt-4 items-start justify-start ">
+                
                 {!isPaymentModeOn && <DisplayList />}
                 {isPaymentModeOn && view == 1 && <PayCash value={currentCart.total} />}
                 {isPaymentModeOn && view == 2 && <PayBancomat value={currentCart.total} />}
-                {view==5 && <ProductSelector close={handleResetView}/>}
-            
+          
             </div>
+            }
+
+              
+            
         </div>
+        
         {/* second part of view.... the right part */}
         <div className="container flex flex-col h-full w-1/2 items-start justify-start">
 
@@ -194,7 +204,7 @@ function Cashier() {
                 </div>
 
                 <div className="flex flex-col items-center justify-start gap-3  h-full w-6/12">
-                <NumericKeyboard />
+                <NumKb/>
                 <button className={`flex items-center justify-center border  rounded-xl border-zinc-300 shadow-md  w-full h-[5.3rem] gap-2 ${view==5?'bg-teal-600  rounded-xl':''}`}
                 disabled ={!currentCart?.active}
                 onClick={()=>handleChangeView(5)}

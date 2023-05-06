@@ -16,10 +16,11 @@ const useSelection = () => {
     //const [code, setCode] = useState('')
     //            const [found, setFound] = useState({})
     
-    const {currentCart} = useCart()
+    const {currentCart, addItemToCartByReference} = useCart()
     const [cashier, setCashier] = usePersistentContext('cashier')
     const [quantity, setQuantity] = React.useState(1)
     const [product, setProduct] =React.useState({})
+    const [detachedList, setDetachedList] =React.useState({})
 
     const prices = React.useRef()
 
@@ -42,14 +43,15 @@ const useSelection = () => {
    
    
 
-    const addSelectedItemToCart = (item) =>{
+    const addSelectedItemToCart = async(item) =>{
 
         
-           console.log('add item to cart')
+           console.log('add item to cart', item)
+           await addItemToCartByReference(item)
                 
     }
 
-    const detachedProductsList = () =>{
+    const detachedProductsList = useMemo(() =>{
 
       const detachedList = JSON.parse(cashier.prices)
       console.log('detachedList', detachedList)
@@ -57,8 +59,8 @@ const useSelection = () => {
       const filtered = detachedList.filter(el => el.detach == "1")
       console.log('detachedList filtered',filtered)
 
-      return filtered
-    }
+      setDetachedList(filtered)
+    },[cashier.prices])
 
 
 
@@ -84,7 +86,7 @@ const useSelection = () => {
 
   return {
         addSelectedItemToCart,
-        detachedProductsList
+        detachedList
     }
    
   

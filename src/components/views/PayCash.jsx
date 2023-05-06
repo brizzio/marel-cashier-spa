@@ -259,7 +259,7 @@ const PayCash = ({value}) => {
       
       <div className="flex flex-col w-full ">
       
-        <div className="ml-4 w-full h-fit grid grid-cols-4 grid-flow-row gap-3 p-5 items-center justify-center">
+        <div className="ml-4 w-full h-fit grid grid-cols-3 grid-flow-row gap-3 p-5 items-center justify-center">
           {!showSplit?
           <>
           <Bill face='200' value='200' update={updateBills} reset={reset}/>
@@ -268,16 +268,15 @@ const PayCash = ({value}) => {
           <Bill face='20' value='20' update={updateBills} reset={reset}/>
           <Bill face='10' value='10' update={updateBills} reset={reset}/>
           <Bill face='5' value='5' update={updateBills} reset={reset}/>
-          <Bill face='2' value='2' update={updateBills} reset={reset}/>
-          <Bill face='1' value='1' update={updateBills} reset={reset}/>
+         
           <Coin face='2€' value='200' update={updateCoins} reset={reset}/>
           <Coin face='1€' value='100' update={updateCoins} reset={reset}/>
           <Coin face='50C' value='50' update={updateCoins} reset={reset}/>
-          <Coin face='25C' value='25' update={updateCoins} reset={reset}/>
+         
           <Coin face='20C' value='20' update={updateCoins} reset={reset}/>
           <Coin face='10C' value='10' update={updateCoins} reset={reset}/>
           <Coin face='5C' value='5' update={updateCoins} reset={reset}/>
-          <Coin face='1C' value='1' update={updateCoins} reset={reset}/>
+          
           </>:
           
 

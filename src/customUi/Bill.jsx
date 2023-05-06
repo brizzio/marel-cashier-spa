@@ -22,6 +22,8 @@ function Bill(props) {
   useEffect(()=>{
     //console.log(`${props.value} --- props.reset! --`, props.reset)
     if (props.reset) setCount(0)
+
+    
   },[props.reset]);
 
  

@@ -1,22 +1,17 @@
+/* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unknown-property */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React from 'react'
-import usePersistentContext from '../../hooks/usePersistentContext'
-import useProductsKeyboard from '../../hooks/useProductsKeyboard'
+import React, { forwardRef, useRef, useImperativeHandle } from 'react'
+import useKb from '../../hooks/useKb'
 
-
-const NumericKeyboard = () => {
+const NumKb = () => {
 
     const [value, setValue]=React.useState('')
-    const [quantity, setQuantity] = usePersistentContext('quantity')
-    const [search, setSearch] = usePersistentContext('search')
-    const [readed, setReaded] = usePersistentContext('readed')
-    const [cashier] = usePersistentContext('cashier')
-  
-    const [q, setQ] = useProductsKeyboard()
-
+    const [enter, setEnter]=React.useState(false)
+    const [ref, setRefValue] = useKb()
+    
     const handleNumberClick = (face)=>{
         const v = value.toString() + face.toString()
         setValue(v)
@@ -24,18 +19,10 @@ const NumericKeyboard = () => {
     }
 
 
-
-    const focus = quantity?.type == 'manual' && quantity?.edit
-    ?'quantity'
-    :search?.active
-    ?'search'
-    :'none'
-
-    console.log('focus',q, focus)
-
-    const keyboard = search?.active
-
-    const clear = () => setValue('')
+    const clear = () => {
+        setValue('')
+        setEnter(false)
+    }
 
     const handleDelete = () => {
         let v = value.slice(0, -1);
@@ -44,50 +31,14 @@ const NumericKeyboard = () => {
     }
 
     const handleEnter = () => {
-        if(focus == 'quantity') setQuantity({...quantity, edit:false})
-        if(focus == 'search') doSearch(value)
-        clear()
+        setEnter(true)
     }
 
-    const doSearch = (val) => {
-        console.log('perform search on ', val)
-
-        const searchProductInPriceList = (code) =>{
-            var data = cashier.prices
-            const prices = Array.isArray(data)?data:JSON.parse(data)
-            //console.log('code prices', prices)
-            const match = prices.filter(el => (el.upc == code))
-            //console.log('match', match)
-            if (match.length == 1) {
-                //console.log('match', match[0])
-                return {found:true, item:match[0]}
-            }else{
-              return {found:false, item:{}}
-            }
-          
-          }
-
-        let result = searchProductInPriceList(val)
-
-        if(result?.found){
-            setSearch({...search, active:false, item:result?.item, found:result?.found})
-            
-        }else{
-
-            console.log('search null', {...search, active:true, item:result?.item, found:result?.found})
-            setSearch({...search, active:true, item:result?.item, found:result?.found})
-        }
-       
-    }
-
+    
 
     React.useMemo(()=>{
-        if(focus == 'quantity') setQuantity({...quantity, value:Number(value)})
-
-        if(focus == 'none') setValue('')  
-
-        if(focus == 'search') setSearch({...search, find:value})
-        
+        console.log('kb change', value)
+        setRefValue(value)
     },[value])
 
     //console.log('numeric keyboard', value)
@@ -114,7 +65,7 @@ const NumericKeyboard = () => {
   )
 }
 
-export default NumericKeyboard
+export default NumKb
 
 const Button = ({
     face,

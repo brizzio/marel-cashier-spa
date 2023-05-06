@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
 
@@ -8,18 +9,23 @@ import useCart from '../../hooks/useCart';
 
 
 
-const removeItemFromCart= (e)=>{
-    console.log('event.currentTarget.dataset.id', e.currentTarget.id); // >> id
-}
 
 
 
-const RenderListItem = ({item}) => {
+const RenderListItem = ({item, index}) => {
     //console.log('list item: ', item)
 
     //console.log('index', index.toString())
 
-    var total = parseFloat(item.calculatedPrice)
+    const {removeItemByKey} = useCart()
+
+    const removeItemFromCart= (e)=>{
+        console.log('event removeItemByKey', e); 
+        removeItemByKey(e)
+    }
+    
+
+    
 
     return (
     <div className='flex flex-row py-3 px-3 py-0.5 items-center justify-between text-lg text-gray-900 border-b border-gray-400'>
@@ -42,7 +48,7 @@ const RenderListItem = ({item}) => {
             
             
             <button id={item.entryID} 
-                    onClick={event=>removeItemFromCart(event)}>
+                    onClick={event=>removeItemFromCart(index)}>
                 <i className="fa-regular fa-trash-can text-red-300 fa-xl"></i>
             </button>
             </div>          
@@ -67,14 +73,6 @@ const DisplayList = () => {
 
 //console.log('DisplayList current cart', currentCart)
 
-    const [list, setList]= React.useState([])
-    
-    React.useEffect(()=>{
-
-        //console.log('display list use effect', currentCart?.items)
-        setList(currentCart?.items)
-    
-    },[currentCart])
     
     
 
@@ -98,8 +96,8 @@ const DisplayList = () => {
                 currentCart && currentCart.items.lenght?
                 <div>In attesa dello scanner...</div>:
                 <div id="table-body" className='flex flex-col h-{8rem} overflow-y-scroll [&::-webkit-scrollbar]:hidden px-2'>
-                {currentCart && currentCart.items.map(function(i, idx){
-                    return (<RenderListItem key={idx} item={i} />)
+                {currentCart?.items?.filter((i)=>!i.deleted).map(function(i, idx){
+                    return (<RenderListItem key={idx} index={idx} item={i} />)
                 })}
                 </div>
             }

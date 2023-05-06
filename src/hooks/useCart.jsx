@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import React from 'react'
+import React, { useMemo } from 'react'
 import usePersistentContext from './usePersistentContext'
 import useTimeZoneDate from './useTimeZoneDate'
 import useLogger from './useLogger'
@@ -53,9 +53,7 @@ const useCart = () => {
 
     
      
-    React.useEffect(()=>{
-        if (!currentCart) setCurrentCart(currentCartModel)
-    })
+    
      
 
     function makeItem(i, q){
@@ -89,18 +87,18 @@ const useCart = () => {
     }
 
 
-    const addReadedItem = (item) =>{
+    const addReadedItem = async (item) =>{
 
-        
-            let quant = quantity?.value?quantity?.value:1
+        try {
+          let quant = quantity?.value?quantity?.value:1
             console.log('quant', quant)
             
                 
-                
+              
                 makeItem(item, quant)
                 .then((res)=>{
-                   console.log('res',res)
-                   return res.lenght==1
+                   console.log('res',res, Array.isArray(res)?res.length:1)
+                   return Array.from(res).length==1
                     ? [...currentCart.items, res[0]]
                     : [...currentCart.items, ...res]
                 })
@@ -113,9 +111,14 @@ const useCart = () => {
                         total: total(newList, 'calculated_price'),
                         weight: sumWeight(newList)
                     }
+                    console.log('updatedCart',updatedCart)
                     setCurrentCart(updatedCart)
                 })
                 
+        } catch (error) {
+          console.log('Occured an error while adding item to cart')
+        }
+            
 
                 //console.log('mountItem', item)
                 //item.cart_id=cart.id
@@ -170,6 +173,14 @@ const useCart = () => {
         
     },[readed])
 
+
+    const addItemToCartByReference = async (item)=>{
+
+      console.log('adding item', item)
+      await addReadedItem(item)
+
+
+    }
     
    
     
@@ -220,7 +231,8 @@ const useCart = () => {
             ...currentCart,
             //list: state.list.filter((item) => item.entry_id !== action.id),
             items:onDeleteList,
-            total: total(onDeleteList, 'calculated_price')
+            total: total(onDeleteList, 'calculated_price'),
+            weight: sumWeight(onDeleteList)
         }
     
         setCurrentCart(removedState)
@@ -322,10 +334,50 @@ const useCart = () => {
     return arr.reduce((a,item)=> a + item[prop],0)
   }
 
-  const updateBagsCount =(value)=>{
-    if (currentCart && currentCart.active) setCurrentCart({...currentCart, bags:value})
+  const prices = useMemo(()=>{
+    var data = cashier.prices
+    return Array.isArray(data)?data:JSON.parse(data)
+    
+  },[cashier.prices])
+
+  const updateBags =async (action)=>{
+
+    const bag = prices.filter(el=>el.product_id==145)[0]
+    //console.log('bag', bag)
+    if (currentCart && currentCart.active){
+      const count = currentCart.bags
+      if(action=='add'){
+      console.log('add bag', bag)
+      setCurrentCart({...currentCart, bags:count+1})
+      await addItemToCartByReference(bag)
+      }
+
+      if(action=='remove'){
+        const updatedItems = currentCart.items 
+        if (updatedItems.length){
+
+          for (let i = 0; i < updatedItems.length; i++) {
+            if (updatedItems[i].product_id==145 && !updatedItems[i].deleted) {
+                updatedItems[i].deleted = true;
+                setCurrentCart({
+                  ...currentCart, 
+                  bags:count-1,
+                  items:updatedItems,
+                  total: total(updatedItems, 'calculated_price'),
+                  weight: sumWeight(updatedItems)
+                })
+
+               break;
+            }
+          }
+          
+        } 
+      }
+    }
   }
 
+  
+  
   const closeCart = async() => {
 
     console.log('closing cart')
@@ -471,11 +523,12 @@ const useCart = () => {
         deleteCart,
         formatDate,
         sumArrayByProp, 
-        updateBagsCount,
+        updateBags,
         closeCart,
         setPaymentMode,
         resetPaymentMode,
         updatePayment,
+        addItemToCartByReference,
         isPaymentModeOn,
         currentCart
     }

@@ -5,6 +5,7 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import useCart from '../../hooks/useCart';
+import Controls from '../views/Controls';
 //import usePersistentContext from '../../hooks/usePersistentContext';
 
 
@@ -47,10 +48,10 @@ const RenderListItem = ({item, index}) => {
             </div>
             
             
-            <button id={item.entryID} 
+            {item.product_id !== 145 && <button id={item.entryID} 
                     onClick={event=>removeItemFromCart(index)}>
                 <i className="fa-regular fa-trash-can text-red-300 fa-xl"></i>
-            </button>
+            </button>}
             </div>          
         </div>
     </div>
@@ -75,7 +76,7 @@ const DisplayList = () => {
 
     
     
-
+ if(!currentCart?.active) return <Controls/>
    
 
   return (
@@ -92,13 +93,17 @@ const DisplayList = () => {
                     <span className="px-2">Ora Inizio: 12:51:30</span>  
                 </div>  
             </div>  */}
+
+           
             {
-                currentCart && currentCart.items.lenght?
-                <div>In attesa dello scanner...</div>:
-                <div id="table-body" className='flex flex-col h-{8rem} overflow-y-scroll [&::-webkit-scrollbar]:hidden px-2'>
+                JSON.stringify(currentCart.items)!== '[]'
+                ?<div id="table-body" className='flex flex-col h-{8rem} overflow-y-scroll [&::-webkit-scrollbar]:hidden px-2'>
                 {currentCart?.items?.filter((i)=>!i.deleted).map(function(i, idx){
                     return (<RenderListItem key={idx} index={idx} item={i} />)
                 })}
+                </div>
+                :<div className="flex w-full h-full items-center justify-center ">
+                    <span className="w-4/6 h-fit text-5xl font-thin">Cassa pronto per inserzione di prodotti...</span>
                 </div>
             }
             

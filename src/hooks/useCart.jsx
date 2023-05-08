@@ -228,14 +228,9 @@ const useCart = () => {
      }
             
     
-    const deleteCart = () =>{
-
-    console.log('remove currentCart ')
-    setCurrentCart({...currentCartModel})
+    const deleteCart = (e) => { if (window.confirm('Cancella il carrello?')) setCurrentCart({...currentCartModel}) }
 
     
-
-    }
     
  
     

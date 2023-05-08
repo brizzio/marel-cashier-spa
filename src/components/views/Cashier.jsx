@@ -15,7 +15,7 @@ import DisplayList from '../displays/DisplayList'
 import PayCash from './PayCash'
 import PayBancomat from './PayBancomat'
 import Bags from '../common/Bags'
-import ProductSelector from './productSelector'
+import ProductSelector from './ProductSelector'
 
 
 
